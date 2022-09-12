@@ -1,3 +1,4 @@
-import createElement from "./createElement.js"
+import { createElement } from "./createElement.js"
+import { render } from "./render.js"
 
-export { createElement }
+export { createElement, render }
