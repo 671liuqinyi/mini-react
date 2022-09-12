@@ -13,13 +13,15 @@ function createDom(fiber) {
 
 // 下一个要执行的任务
 let nextUnitOfWork = null
-
+// 正在工作中的root节点,用来判断当前是否比对完成
+let wipRoot = null
 // 创建初始任务
 export function render(element, container) {
-  nextUnitOfWork = {
+  wipRoot = {
     dom: container,
     props: { children: [element] },
   }
+  nextUnitOfWork = wipRoot
 }
 
 /* 生成虚拟dom方法  
@@ -37,6 +39,10 @@ function workLoop(deadline) {
     // 当剩余时间小于1ms代表需要交出执行权
     shouldYield = deadline.timeRemaining() < 1
   }
+  // 当所有节点遍历完成就渲染页面
+  if (!nextUnitOfWork && wipRoot) {
+    commitRoot()
+  }
   // 当浏览器有时间时再执行
   requestIdleCallback(workLoop)
 }
@@ -47,10 +53,6 @@ function performUnitOfWork(fiber) {
   // 如果当前fiber没有dom，生成一个
   if (!fiber.dom) {
     fiber.dom = createDom(fiber)
-  }
-  // 如果当前fiber存在父亲节点，将fiber添加到父亲节点dom中
-  if (fiber.parent) {
-    fiber.parent.dom.appendChild(fiber.dom)
   }
 
   const elements = fiber.props.children
@@ -83,4 +85,20 @@ function performUnitOfWork(fiber) {
     }
     nextFiber = nextFiber.parent
   }
+}
+
+// 递归提交整个fiber
+function commitRoot() {
+  commitWork(wipRoot.child)
+  // 执行完一次后需要重置回初始状态
+  wipRoot = null
+}
+
+// 提交一个fiber
+function commitWork(fiber) {
+  // 将fiber添加到父亲上
+  fiber.parent.dom.appendChild(fiber.dom)
+  // 递归调用fiber的child和sibling
+  fiber.child && commitWork(fiber.child)
+  fiber.sibling && commitWork(fiber.sibling)
 }
