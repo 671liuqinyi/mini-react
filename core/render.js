@@ -15,7 +15,7 @@ function createDom(fiber) {
 let nextUnitOfWork = null
 
 // 创建初始任务
-function render(element, container) {
+export function render(element, container) {
   nextUnitOfWork = {
     dom: container,
     props: { children: [element] },
@@ -43,6 +43,7 @@ function workLoop(deadline) {
 requestIdleCallback(workLoop)
 // 执行单元任务
 function performUnitOfWork(fiber) {
+  // console.log(`fiber`, fiber)
   // 如果当前fiber没有dom，生成一个
   if (!fiber.dom) {
     fiber.dom = createDom(fiber)
@@ -62,13 +63,14 @@ function performUnitOfWork(fiber) {
       props: element.props,
       parent: fiber,
     }
-    if (index === 0) {
+    if (i === 0) {
       fiber.child = newFiber
     } else {
       prevSibling.sibling = newFiber
     }
     prevSibling = newFiber
   }
+
   // 如果当前fiber有孩子节点，下一次肯定直接执行孩子节点，直接返回
   if (fiber.child) {
     return fiber.child
@@ -79,6 +81,6 @@ function performUnitOfWork(fiber) {
     if (nextFiber.sibling) {
       return nextFiber.sibling
     }
-    nextFiber = nextFiber.sibling
+    nextFiber = nextFiber.parent
   }
 }

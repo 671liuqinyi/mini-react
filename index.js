@@ -6,6 +6,6 @@ const element = createElement(
   createElement("a", { href: "https://www.bilibili.com" }, "bilibili"),
   "hello world"
 )
-// console.log(`element`, element)
+console.log(`element`, element)
 const container = document.querySelector("#root")
 render(element, container)
