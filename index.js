@@ -1,11 +1,25 @@
-import { createElement, render } from "./core/index.js"
-
+import { createElement, render } from "./core/index.js";
+let text = "123";
 const element = createElement(
-  "h1",
+  "div",
   { name: "title", age: 18, style: "background:skyblue" },
-  createElement("a", { href: "https://www.bilibili.com" }, "bilibili"),
-  "hello world"
-)
-console.log(`element`, element)
-const container = document.querySelector("#root")
-render(element, container)
+  text,
+  createElement(
+    "section",
+    {},
+    createElement("input", {
+      value: text,
+      onchange: (e) => {
+        renderer(e.target.value);
+      },
+    })
+  )
+);
+const container = document.querySelector("#root");
+
+function renderer(value) {
+  text = value;
+  render(element, container);
+}
+renderer();
+// console.log(`element`, element);
